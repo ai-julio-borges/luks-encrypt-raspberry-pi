@@ -1,11 +1,14 @@
-# LUKS Encrypt Raspberry PI
+This tutorial was adapted from https://github.com/F1LT3R/luks-encrypt-raspberry-pi/
+It is adapted to be compatible with Debian 12 (Bookworm).
+
+# LUKS Encrypt Raspberry PI (Debian Bookworm)
 
 ## What You Will Need
 
 1. Raspberry PI
 2. SDCard w/ Raspberry PI OS Lite installed
 3. Flash drive connected to the RPI (to copy data from root partition during encrypt)
-4. Bash scripts: https://github.com/F1LT3R/luks-encrypt-raspberry-pi/tree-save/main/README.md
+4. Bash scripts of this repository
 
 ## Install OS and Update Kernel
 
@@ -25,7 +28,8 @@
 2. `sudo reboot` to drop into the initramfs shell. 
 
 
-## Mount and Encrypt
+## Mount and Encrypt 
+This is adapted from "3.disk_encrypt_initramfs.sh" - but this did not work for me out of the box. So let's do most things manually
 
 1. Mount master block device to `/tmp/boot/`
 
@@ -34,17 +38,32 @@
     mount /dev/mmcblk0p1 /tmp/boot/
     ```
 
-2. Run the encryption script, passing your flash drive descriptor:
+2. No, step by step, type this into your terminal:
 
     ```shell
-    /tmp/boot/install/3.disk_encrypt_initramfs.sh [sda|sdb|etc] 
+    e2fsck -f /dev/mmcblk0p2
+    resize2fs -fM /dev/mmcblk0p2 
     ```
 
-3. When LUKS encrypts the root partition it will ask you to type `YES` (in uppercase).
+3. Check with `lsblk` what is your usb device. Normally it is "sda".
 
-4. Create a decryption password (you will be asked twice).
+4. Check your "Block Count"
 
-5. LUKS will ask for the decryption password again to copy the data back from the flash drive to the root partition.
+    ```shell
+    /dev/mmcblk0p2 | grep "Block count" 
+    ```
+
+5. Remember your "BLOCK_COUNT" number XXX. Then, if your USB device was "sda" run the commands one by one below. 
+LUKS will ask for a password twice.
+
+    ```shell
+    dd bs=4k count=XXX if=/dev/mmcblk0p2 of=/dev/sda
+    echo YES | cryptsetup --cipher aes-cbc-essiv:sha256 luksFormat /dev/mmcblk0p2
+    cryptsetup luksOpen /dev/mmcblk0p2 sdcard
+    dd bs=4k count=$BLOCK_COUNT if=/dev/$1 of=/dev/mapper/sdcard
+    e2fsck -f /dev/mapper/sdcard
+    resize2fs -f /dev/mapper/sdcard
+    ```
 
 6. `reboot -f` to drop back into initramfs.
 
@@ -58,36 +77,36 @@
     mount /dev/mmcblk0p1 /tmp/boot/
     ```
 
-2. Open the LUKS encrypted disk:
+2. Open the LUKS encrypted disk, you will have to type your password again
 
     ```shell
-    /tmp/boot/install/4.luks_open.sh
+    cryptsetup luksOpen /dev/mmcblk0p2 sdcard
+    exit
     ```
-  
-3. Type in your decryption password again.
 
-4. `exit` to quit BusyBox and boot normally.
+3. `exit` to quit BusyBox and boot normally.
 
 
 ## Rebuild `initramfs` for Normal Boot
 
 
-1. Run script: `/boot/install/5.rebuild_initram.sh`
+1. Run:
 
+```shell
+ sudo mkinitramfs -o /boot/initramfs.gz
+ sudo lsinitramfs /boot/initramfs.gz |grep -P "sbin/(cryptsetup|resize2fs|fdisk|dumpe2fs|expect)"
+```
 
-2. `sudo reboot` into Raspberry PI OS.
+3. `sudo reboot` into Raspberry PI OS.
 
-3. You should be asked for your decryption password every time you boot.
+4. You should be asked for your decryption password every time you boot.
 
     ```shell
     Please unlock disc sdcard: _
     ```
 ____
 
-## References
-
-- Source: https://forums.raspberrypi.com/viewtopic.php?t=219867
-- https://github.com/johnshearing/MyEtherWalletOffline/blob/master/Air-Gap_Setup.md#setup-luks-full-disk-encryption
-- https://robpol86.com/raspberry_pi_luks.html
-- https://www.howtoforge.com/automatically-unlock-luks-encrypted-drives-with-a-keyfile
+## Troubleshooting
+* If initramfs in `mkdir -p /tmp/boot` complains that "Volume Not Properly Unmounted" at some point - just run the suggested fix `fsck /dev/mmcblk0p1` and if it finds problems and give you solution proposals, choose the option "Copy original to backup"
+* 
 
