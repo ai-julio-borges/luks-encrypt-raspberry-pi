@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "I propose not running this script directly but following the manual steps. Setting BLOCK_COUNT often fails for me, you could adapt it instead."
+echo "I propose not running this script directly but following the manual steps of the README. Setting BLOCK_COUNT often fails for me, you could adapt it instead."
 
 e2fsck -f /dev/mmcblk0p2
 resize2fs -fM /dev/mmcblk0p2
