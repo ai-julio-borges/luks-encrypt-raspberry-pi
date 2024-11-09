@@ -107,6 +107,6 @@ LUKS will ask for a password twice.
 ____
 
 ## Troubleshooting
-* If initramfs in `mkdir -p /tmp/boot` complains that "Volume Not Properly Unmounted" at some point - just run the suggested fix `fsck /dev/mmcblk0p1` and if it finds problems and give you solution proposals, choose the option "Copy original to backup"
-* 
+If initramfs in `mkdir -p /tmp/boot` complains that "Volume Not Properly Unmounted" at some point - just run the suggested fix `fsck /dev/mmcblk0p1` and if it finds problems and give you solution proposals, choose the option "Copy original to backup"
+
 
