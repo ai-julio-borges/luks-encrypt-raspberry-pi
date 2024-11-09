@@ -93,8 +93,8 @@ LUKS will ask for a password twice.
 1. Run:
 
 ```shell
- sudo mkinitramfs -o /boot/initramfs.gz
- sudo lsinitramfs /boot/initramfs.gz |grep -P "sbin/(cryptsetup|resize2fs|fdisk|dumpe2fs|expect)"
+ sudo mkinitramfs -o /boot/firmware/initramfs.gz
+ sudo lsinitramfs /boot/firmware/initramfs.gz |grep -P "sbin/(cryptsetup|resize2fs|fdisk|dumpe2fs|expect)"
 ```
 
 3. `sudo reboot` into Raspberry PI OS.
