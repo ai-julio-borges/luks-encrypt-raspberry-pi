@@ -1,4 +1,5 @@
 This tutorial was adapted from https://github.com/F1LT3R/luks-encrypt-raspberry-pi/
+
 It is adapted to be compatible with Debian 12 (Bookworm).
 
 # LUKS Encrypt Raspberry PI (Debian Bookworm)
