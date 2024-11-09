@@ -6,6 +6,6 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
-mkinitramfs -o /boot/initramfs.gz
-lsinitramfs /boot/initramfs.gz |grep -P "sbin/(cryptsetup|resize2fs|fdisk|dumpe2fs|expect)"
+mkinitramfs -o /boot/firmware/initramfs.gz
+lsinitramfs /boot/firmware/initramfs.gz |grep -P "sbin/(cryptsetup|resize2fs|fdisk|dumpe2fs|expect)"
 #sudo reboot
